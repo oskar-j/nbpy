@@ -92,14 +92,14 @@ class NBPConverter(object):
                 else:
                     rates[date] = _data[date]
 
-        return [
+        return sorted([
             NBPExchangeRate(
                 currency_code=self.currency_code,
                 date=rate['effectiveDate'],
                 source_id=rate['no'],
                 **rate
             ) for rate in rates.values()
-        ]
+        ], key=lambda rate: rate.date)
 
     def current(self, all_values=False):
         return self._get_response_data('', all_values)
