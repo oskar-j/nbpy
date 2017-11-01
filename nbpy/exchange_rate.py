@@ -55,7 +55,7 @@ class NBPExchangeRate(object):
     @property
     def currency_name(self):
         """Full currency name."""
-        return currencies[self.currency_code]
+        return currencies[self.currency_code].name
 
     @property
     def date(self):
