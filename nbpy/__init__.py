@@ -1,8 +1,11 @@
 """NBPy package."""
 
+import json
+import requests
+from decimal import Decimal
 from functools import lru_cache
 from .version import version as __version__
-from .errors import UnknownCurrencyCode
+from .errors import UnknownCurrencyCode, APIError
 from .currencies import currencies
 
 
@@ -48,9 +51,45 @@ class NBPConverter(object):
             raise UnknownCurrencyCode(code)
         self._currency_code = code
 
-    def _request(self, uri_tail):
-        """Return HTTP response object from API call."""
-        pass
+    def _get_response_data(self, uri_tail, all_values=False):
+        """Return HTTP response data from API call."""
+        tables = currencies[self.currency_code].tables
+        if not all_values:
+            # Avoid bid/ask values
+            tables.discard('C')
+
+        rates = {}
+
+        for table in tables:
+            uri = self._uri_template.format(
+                code=self.currency_code,
+                table=table,
+                tail=uri_tail
+            )
+
+            # Send request to API, raise exception on error
+            try:
+                headers = {'Accept': 'application/json'}
+                r = requests.get(uri, headers=headers)
+                r.raise_for_status()
+            except Exception as e:
+                raise APIError(str(e))
+
+            # Parse data with values as decimals
+            if self.as_float:
+                parse_float_cls = float
+            else:
+                parse_float_cls = Decimal
+
+            _data = json.loads(r.text, parse_float=parse_float_cls)['rates']
+            _data = {r['effectiveDate']: r for r in _data}
+            for date in _data:
+                if date in rates:
+                    rates[date].update(_data[date])
+                else:
+                    rates[date] = _data[date]
+
+        return rates
 
     def current(self):
         pass
