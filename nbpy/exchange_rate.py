@@ -23,7 +23,7 @@ class NBPExchangeRate(object):
 
     def __repr__(self):
         try:
-            return "{cls_name}({code}, {date}, mid={mid}, bid={bid}, ask={ask})".format(
+            return "{cls_name}({code}->PLN, {date}, mid={mid}, bid={bid}, ask={ask})".format(
                 cls_name=self.__class__.__name__,
                 code=self.currency_code,
                 date=self.date,
@@ -32,7 +32,7 @@ class NBPExchangeRate(object):
                 ask=self.ask
             )
         except AttributeError:
-            return "{cls_name}({code}, {date}, mid={mid})".format(
+            return "{cls_name}({code}->PLN, {date}, mid={mid})".format(
                 cls_name=self.__class__.__name__,
                 code=self.currency_code,
                 date=self.date,
