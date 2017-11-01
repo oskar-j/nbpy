@@ -21,6 +21,24 @@ class NBPExchangeRate(object):
             self.bid = kwargs.get('bid')
             self.ask = kwargs.get('ask')
 
+    def __repr__(self):
+        try:
+            return "{cls_name}({code}, {date}, mid={mid}, bid={bid}, ask={ask})".format(
+                cls_name=self.__class__.__name__,
+                code=self.currency_code,
+                date=self.date,
+                mid=self.mid,
+                bid=self.bid,
+                ask=self.ask
+            )
+        except AttributeError:
+            return "{cls_name}({code}, {date}, mid={mid})".format(
+                cls_name=self.__class__.__name__,
+                code=self.currency_code,
+                date=self.date,
+                mid=self.mid
+            )
+
     @property
     def currency_code(self):
         """Currency code."""
