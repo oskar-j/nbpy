@@ -7,6 +7,7 @@ from functools import lru_cache
 from .version import version as __version__
 from .errors import UnknownCurrencyCode, APIError
 from .currencies import currencies
+from .exchange_rate import NBPExchangeRate
 
 
 __all__ = ['NBPConverter']
@@ -52,7 +53,7 @@ class NBPConverter(object):
 
     def _get_response_data(self, uri_tail, all_values=False):
         """Return HTTP response data from API call."""
-        tables = currencies[self.currency_code].tables
+        tables = currencies[self.currency_code].tables.copy()
         if not all_values:
             # Avoid bid/ask values
             tables.discard('C')
@@ -73,6 +74,7 @@ class NBPConverter(object):
                 r.raise_for_status()
             except Exception as e:
                 if self.suppress_api_errors:
+                    # Return None if errors suppressed
                     return None
                 raise APIError(str(e))
 
@@ -83,14 +85,21 @@ class NBPConverter(object):
                 parse_float_cls = Decimal
 
             _data = json.loads(r.text, parse_float=parse_float_cls)['rates']
-            _data = {r['effectiveDate']: r for r in _data}
+            _data = {rate['effectiveDate']: rate for rate in _data}
             for date in _data:
                 if date in rates:
                     rates[date].update(_data[date])
                 else:
                     rates[date] = _data[date]
 
-        return rates
+        return [
+            NBPExchangeRate(
+                currency_code=self.currency_code,
+                date=rate['effectiveDate'],
+                source_id=rate['no'],
+                **rate
+            ) for rate in rates.values()
+        ]
 
     def current(self, all_values=False):
         return self._get_response_data('', all_values)
