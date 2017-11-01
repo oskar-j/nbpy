@@ -15,7 +15,7 @@ class NBPCurrency(object):
         self.tables = set(tables)
 
     def __repr__(self):
-        return "<{cls_name} {name} ({code}), tables={tables}>".format(
+        return "{cls_name}({name}, code={code}, tables={tables})".format(
             cls_name=self.__class__.__name__,
             name=self.name,
             code=self.code,
