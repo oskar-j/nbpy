@@ -15,7 +15,7 @@ __all__ = ['NBPConverter']
 
 
 class NBPConverter(object):
-    """Converter between PLN and other currencies/troy ounces of gold."""
+    """Converter between PLN and other currencies."""
 
     # API base URI
     _base_uri = "http://api.nbp.pl/api"
