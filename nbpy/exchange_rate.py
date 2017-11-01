@@ -1,7 +1,9 @@
 """Defines NBPCurrencyExchangeRate class."""
 
+from datetime import datetime
 from nbpy.errors import UnknownCurrencyCode
 from nbpy.currencies import currencies
+from nbpy.utils import validate_date
 
 
 __all__ = ['NBPExchangeRate']
@@ -26,7 +28,7 @@ class NBPExchangeRate(object):
             return "{cls_name}({code}->PLN, {date}, mid={mid}, bid={bid}, ask={ask})".format(
                 cls_name=self.__class__.__name__,
                 code=self.currency_code,
-                date=self.date,
+                date=self.date.strftime('%Y-%m-%d'),
                 mid=self.mid,
                 bid=self.bid,
                 ask=self.ask
@@ -35,7 +37,7 @@ class NBPExchangeRate(object):
             return "{cls_name}({code}->PLN, {date}, mid={mid})".format(
                 cls_name=self.__class__.__name__,
                 code=self.currency_code,
-                date=self.date,
+                date=self.date.strftime('%Y-%m-%d'),
                 mid=self.mid
             )
 
@@ -55,6 +57,20 @@ class NBPExchangeRate(object):
     def currency_name(self):
         """Full currency name."""
         return currencies[self.currency_code]
+
+    @property
+    def date(self):
+        """Datetime object."""
+        return self._date
+
+    @date.setter
+    def date(self, date):
+        validate_date(date)
+
+        if isinstance(date, datetime):
+            self._date = date
+        else:
+            self._date = datetime.strptime(date, "%Y-%m-%d")
 
     def __call__(self, amount_in_pln):
         """Convert amount in PLN to chosen currency."""
