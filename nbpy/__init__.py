@@ -2,13 +2,18 @@
 
 from functools import lru_cache
 from .version import version as __version__
+from .currencies import currencies
 
 
-__all__ = ['NBPConverter', 'NBPError']
+__all__ = ['NBPConverter', 'NBPError', 'UnknownCurrencyCode']
 
 
 class NBPError(Exception):
     """General exception for NBPy."""
+    pass
+
+class UnknownCurrencyCode(NBPError):
+    """Raised for unknown currency codes."""
     pass
 
 
@@ -33,6 +38,17 @@ class NBPConverter(object):
         cache_decorator = lru_cache(maxsize=self.cache_size)
         for method in ('current', 'today', 'date', 'date_range'):
             setattr(self, method, cache_decorator(getattr(self, method)))
+
+    @property
+    def currency_code(self):
+        return self._currency_code
+
+    @currency_code.setter
+    def currency_code(self, code):
+        code = code.upper()
+        if code not in nbp_currencies:
+            raise UnknownCurrencyCode(code)
+        self._currency_code = code
 
     def current(self, amount):
         pass
