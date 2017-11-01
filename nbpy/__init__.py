@@ -30,9 +30,6 @@ class NBPConverter(object):
         #: If True, values will be floats instead of decimals.
         self.as_float = kwargs.get('as_float', False)
 
-        #: If True, conversion will be from PLN to given currency.
-        self.inverse = kwargs.get('inverse', False)
-
         #: If True, instead of raising APIErrors return None
         self.suppress_api_errors = kwargs.get('suppress_api_errors', False)
 
