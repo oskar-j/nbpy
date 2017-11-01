@@ -1,6 +1,6 @@
 """NBPy errors."""
 
-__all__ = ['NBPError', 'UnknownCurrencyCode', 'APIError']
+__all__ = ['NBPError', 'UnknownCurrencyCode', 'DateFormattingError', 'APIError']
 
 
 class NBPError(Exception):
@@ -10,6 +10,11 @@ class NBPError(Exception):
 
 class UnknownCurrencyCode(NBPError):
     """Raised for unknown currency codes."""
+    pass
+
+
+class DateFormattingError(NBPError):
+    """Raised for improperly formatted date strings (not YYYY-MM-DD)."""
     pass
 
 

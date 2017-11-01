@@ -6,7 +6,7 @@ from decimal import Decimal
 from functools import lru_cache
 from .version import version as __version__
 from .errors import UnknownCurrencyCode, APIError
-from .utils import first_if_sequence
+from .utils import validate_date, first_if_sequence
 from .currencies import currencies
 from .exchange_rate import NBPExchangeRate
 
@@ -116,9 +116,14 @@ class NBPConverter(object):
 
     @first_if_sequence
     def date(self, date, all_values=False):
+        validate_date(date)
+
         return self._get_response_data(date, all_values)
 
     def date_range(self, start_date, end_date, all_values=False):
+        validate_date(start_date)
+        validate_date(end_date)
+
         uri_tail = "{}/{}".format(start_date, end_date)
         return self._get_response_data(uri_tail, all_values)
 
