@@ -16,7 +16,7 @@ class NBPConverter(object):
     """Converter between PLN and other currencies/troy ounces of gold."""
 
     # API base URI
-    _base_uri = "http://api.nbp.pl/api/"
+    _base_uri = "http://api.nbp.pl/api"
 
     # Template URI for NBP API calls
     _uri_template = _base_uri + "/exchangerates/rates/{table}/{code}/{tail}"
@@ -91,17 +91,22 @@ class NBPConverter(object):
 
         return rates
 
-    def current(self):
-        pass
+    def current(self, all_values=False):
+        return self._get_response_data('', all_values)
 
-    def today(self):
-        pass
+    def today(self, all_values=False):
+        return self._get_response_data('today', all_values)
 
-    def date(self, date):
-        pass
+    def last(self, n, all_values=False):
+        uri_tail = "last/{:d}".format(n)
+        return self._get_response_data(uri_tail, all_values)
 
-    def date_range(self, start_date, end_date):
-        pass
+    def date(self, date, all_values=False):
+        return self._get_response_data(date, all_values)
 
-    def __call__(self, amount):
-        return self.current(amount)
+    def date_range(self, start_date, end_date, all_values=False):
+        uri_tail = "{}/{}".format(start_date, end_date)
+        return self._get_response_data(uri_tail, all_values)
+
+    def __call__(self, all_values=False):
+        return self.current(all_values)
