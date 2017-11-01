@@ -20,6 +20,12 @@ class UnknownCurrencyCode(NBPError):
 class NBPConverter(object):
     """Converter between PLN and other currencies/troy ounces of gold."""
 
+    # API base URI
+    _base_uri = "http://api.nbp.pl/api/"
+
+    # Template URI for NBP API calls
+    _uri_template = _base_uri + "/exchangerates/rates/{table}/{code}/{tail}"
+
     def __init__(self, currency_code, **kwargs):
         """
         Initialize for given `currency_code` and `amount`.
@@ -50,16 +56,20 @@ class NBPConverter(object):
             raise UnknownCurrencyCode(code)
         self._currency_code = code
 
-    def current(self, amount):
+    def _request(self, uri_tail):
+        """Return HTTP response object from API call."""
         pass
 
-    def today(self, amount):
+    def current(self):
         pass
 
-    def date(self, amount, date):
+    def today(self):
         pass
 
-    def date_range(self, amount, start_date, end_date):
+    def date(self, date):
+        pass
+
+    def date_range(self, start_date, end_date):
         pass
 
     def __call__(self, amount):
