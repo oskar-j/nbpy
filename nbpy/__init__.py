@@ -1,6 +1,5 @@
 """NBPy package."""
 
-import json
 import requests
 from decimal import Decimal
 from functools import lru_cache
@@ -85,7 +84,7 @@ class NBPConverter(object):
             else:
                 parse_float_cls = Decimal
 
-            _data = json.loads(r.text, parse_float=parse_float_cls)['rates']
+            _data = r.json(parse_float=parse_float_cls)['rates']
             _data = {rate['effectiveDate']: rate for rate in _data}
             for date in _data:
                 if date in rates:
