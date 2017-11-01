@@ -63,9 +63,9 @@ class NBPConverter(object):
 
         for table in tables:
             uri = self._uri_template.format(
-                code=self.currency_code,
-                table=table,
-                tail=uri_tail
+                code=self.currency_code.lower(),
+                table=table.lower(),
+                tail=uri_tail.lower()
             )
 
             # Send request to API, raise exception on error
