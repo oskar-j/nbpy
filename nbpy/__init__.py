@@ -44,7 +44,7 @@ class NBPConverter(object):
     @currency_code.setter
     def currency_code(self, code):
         code = code.upper()
-        if code not in nbp_currencies:
+        if code not in currencies:
             raise UnknownCurrencyCode(code)
         self._currency_code = code
 
