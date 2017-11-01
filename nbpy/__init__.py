@@ -37,8 +37,7 @@ class NBPConverter(object):
         self.cache_size = kwargs.get('cache_size', 128)
 
         cache_decorator = lru_cache(maxsize=self.cache_size)
-        for method in ('current', 'today', 'date', 'date_range'):
-            setattr(self, method, cache_decorator(getattr(self, method)))
+        self._get_response_data = cache_decorator(self._get_response_data)
 
     @property
     def currency_code(self):
