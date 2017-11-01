@@ -65,7 +65,6 @@ def _test_currency_basic(data):
     exchange_rate = NBPExchangeRate(**data)
 
     assert exchange_rate.currency_code == data['currency_code']
-    assert exchange_rate.source_id == data['source_id']
 
     assert isinstance(exchange_rate.date, datetime)
     date = datetime.strptime(data['date'], "%Y-%m-%d")

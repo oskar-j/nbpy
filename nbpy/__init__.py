@@ -97,7 +97,6 @@ class NBPConverter(object):
             NBPExchangeRate(
                 currency_code=self.currency_code,
                 date=rate['effectiveDate'],
-                source_id=rate['no'],
                 **rate
             ) for rate in rates.values()
         ], key=lambda rate: rate.date)

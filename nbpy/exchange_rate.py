@@ -12,11 +12,10 @@ __all__ = ['NBPExchangeRate']
 class NBPExchangeRate(object):
     """Holds information about exchange rates for given currency and day."""
 
-    def __init__(self, currency_code, date, source_id, mid, **kwargs):
+    def __init__(self, currency_code, date, mid, **kwargs):
         """Initialize for currency code, date and avg (mid) value."""
         self.currency_code = currency_code
         self.date = date
-        self.source_id = source_id
         self.mid = mid
 
         if 'bid' in kwargs and 'ask' in kwargs:
