@@ -2,19 +2,11 @@
 
 from functools import lru_cache
 from .version import version as __version__
+from .errors import UnknownCurrencyCode
 from .currencies import currencies
 
 
-__all__ = ['NBPConverter', 'NBPError', 'UnknownCurrencyCode']
-
-
-class NBPError(Exception):
-    """General exception for NBPy."""
-    pass
-
-class UnknownCurrencyCode(NBPError):
-    """Raised for unknown currency codes."""
-    pass
+__all__ = ['NBPConverter']
 
 
 class NBPConverter(object):
