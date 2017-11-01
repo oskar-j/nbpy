@@ -13,14 +13,15 @@ from .exchange_rate import NBPExchangeRate
 __all__ = ['NBPConverter']
 
 
+#: Base URI
+BASE_URI = "http://api.nbp.pl/api"
+
+
 class NBPConverter(object):
     """Converter between PLN and other currencies."""
 
-    # API base URI
-    _base_uri = "http://api.nbp.pl/api"
-
     # Template URI for NBP API calls
-    _uri_template = _base_uri + "/exchangerates/rates/{table}/{code}/{tail}"
+    _uri_template = BASE_URI + "/exchangerates/rates/{table}/{code}/{tail}"
 
     def __init__(self, currency_code, **kwargs):
         """
