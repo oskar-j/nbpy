@@ -33,6 +33,9 @@ class NBPConverter(object):
         #: If True, conversion will be from PLN to given currency.
         self.inverse = kwargs.get('inverse', False)
 
+        #: If True, instead of raising APIErrors return None
+        self.suppress_api_errors = kwargs.get('suppress_api_errors', False)
+
         #: Max size for LRU cache.
         self.cache_size = kwargs.get('cache_size', 128)
 
@@ -72,6 +75,8 @@ class NBPConverter(object):
                 r = requests.get(uri, headers=headers)
                 r.raise_for_status()
             except Exception as e:
+                if self.suppress_api_errors:
+                    return None
                 raise APIError(str(e))
 
             # Parse data with values as decimals
