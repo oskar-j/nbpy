@@ -1,3 +1,5 @@
+"""Tests for nbpy.exchange_rates submodule."""
+
 import random
 import pytest
 
@@ -8,6 +10,7 @@ rnd_count = 10
 
 @pytest.fixture
 def basic_data():
+    """Basic (incomplete) data used to initialize NBPExchangeRate objects."""
     return {
         'currency_code': 'USD',
         'date': '2017-01-01',
@@ -17,6 +20,7 @@ def basic_data():
 @pytest.fixture(params=[random.uniform(0.0, 5.0)
                         for _ in range(rnd_count)])
 def mid_data(request, basic_data):
+    """Data used to initialize exchange rates, only with mid."""
     from decimal import Decimal
     return dict(basic_data, **{
         'mid': Decimal(round(request.param, 5))
@@ -25,6 +29,7 @@ def mid_data(request, basic_data):
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(3)]
                         for _ in range(rnd_count)])
 def bid_ask_data(request, basic_data):
+    """Data used to initialize exchange rates, with mid, bid and ask."""
     from decimal import Decimal
     return dict(basic_data, **{
         'mid': Decimal(round(request.param[0], 5)),
@@ -35,6 +40,7 @@ def bid_ask_data(request, basic_data):
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(2)]
                         for _ in range(rnd_count)])
 def bid_data(request, basic_data):
+    """Data used to initialize exchange rates, without ask."""
     from decimal import Decimal
     return dict(basic_data, **{
         'mid': Decimal(round(request.param[0], 5)),
@@ -44,6 +50,7 @@ def bid_data(request, basic_data):
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(2)]
                         for _ in range(rnd_count)])
 def ask_data(request, basic_data):
+    """Data used to initialize exchange rates, without bid."""
     from decimal import Decimal
     return dict(basic_data, **{
         'mid': Decimal(round(request.param[0], 5)),
