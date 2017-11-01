@@ -1,8 +1,11 @@
+"""Tests for nbpy.currencies submodule."""
+
 import pytest
 
 
 @pytest.fixture(scope='module')
 def data():
+    """Data used to initialize NBPCurrency object."""
     return {
         'code': 'TST',
         'name': 'Test currency',
@@ -11,6 +14,7 @@ def data():
 
 @pytest.fixture(scope='module')
 def currency(data):
+    """NBPCurrency object."""
     from nbpy.currencies import NBPCurrency
     return NBPCurrency(**data)
 
@@ -26,6 +30,7 @@ def test_init_tables(data, currency):
 
 @pytest.fixture(scope='module')
 def currencies():
+    """List of all available currencies."""
     from nbpy.currencies import currencies
     return currencies
 
