@@ -40,3 +40,16 @@ def test_currencies_types(currencies):
     for code, currency in currencies.items():
         assert isinstance(code, str)
         assert isinstance(currency, NBPCurrency)
+
+def test_currencies_codes(currencies):
+    from nbpy.currencies import NBPCurrency
+
+    for code, currency in currencies.items():
+        assert code == currency.code
+
+def test_currencies_tables(currencies):
+    from nbpy.currencies import NBPCurrency
+
+    for currency in currencies.values():
+        for table in currency.tables:
+            assert table in ('A', 'B', 'C')
