@@ -6,6 +6,7 @@ from decimal import Decimal
 from functools import lru_cache
 from .version import version as __version__
 from .errors import UnknownCurrencyCode, APIError
+from .utils import first_if_sequence
 from .currencies import currencies
 from .exchange_rate import NBPExchangeRate
 
@@ -101,9 +102,11 @@ class NBPConverter(object):
             ) for rate in rates.values()
         ], key=lambda rate: rate.date)
 
+    @first_if_sequence
     def current(self, all_values=False):
         return self._get_response_data('', all_values)
 
+    @first_if_sequence
     def today(self, all_values=False):
         return self._get_response_data('today', all_values)
 
@@ -111,6 +114,7 @@ class NBPConverter(object):
         uri_tail = "last/{:d}".format(n)
         return self._get_response_data(uri_tail, all_values)
 
+    @first_if_sequence
     def date(self, date, all_values=False):
         return self._get_response_data(date, all_values)
 
