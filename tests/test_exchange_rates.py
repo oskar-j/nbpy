@@ -23,7 +23,7 @@ def mid_data(request, basic_data):
     """Data used to initialize exchange rates, only with mid."""
     from decimal import Decimal
     return dict(basic_data, **{
-        'mid': Decimal(round(request.param, 5))
+        'mid': Decimal("{:.4f}".format(request.param))
     })
 
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(3)]
@@ -32,9 +32,9 @@ def bid_ask_data(request, basic_data):
     """Data used to initialize exchange rates, with mid, bid and ask."""
     from decimal import Decimal
     return dict(basic_data, **{
-        'mid': Decimal(round(request.param[0], 5)),
-        'bid': Decimal(round(request.param[1], 5)),
-        'ask': Decimal(round(request.param[2], 5)),
+        'mid': Decimal("{:.4f}".format(request.param[0])),
+        'bid': Decimal("{:.4f}".format(request.param[1])),
+        'ask': Decimal("{:.4f}".format(request.param[2])),
     })
 
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(2)]
@@ -43,8 +43,8 @@ def bid_data(request, basic_data):
     """Data used to initialize exchange rates, without ask."""
     from decimal import Decimal
     return dict(basic_data, **{
-        'mid': Decimal(round(request.param[0], 5)),
-        'bid': Decimal(round(request.param[1], 5)),
+        'mid': Decimal("{:.4f}".format(request.param[0])),
+        'bid': Decimal("{:.4f}".format(request.param[1])),
     })
 
 @pytest.fixture(params=[[random.uniform(0.0, 5.0) for __ in range(2)]
@@ -53,8 +53,8 @@ def ask_data(request, basic_data):
     """Data used to initialize exchange rates, without bid."""
     from decimal import Decimal
     return dict(basic_data, **{
-        'mid': Decimal(round(request.param[0], 5)),
-        'ask': Decimal(round(request.param[1], 5)),
+        'mid': Decimal("{:.4f}".format(request.param[0])),
+        'ask': Decimal("{:.4f}".format(request.param[1])),
     })
 
 
