@@ -233,8 +233,6 @@ currencies = {
             'tables': ('A',)},
     'PKR': {'name': 'Pakistani rupee',
             'tables': ('B',)},
-    'PLN': {'name': 'Polish złoty',
-            'tables': ()},
     'PYG': {'name': 'Paraguayan guaraní',
             'tables': ('B',)},
     'QAR': {'name': 'Qatari riyal',
