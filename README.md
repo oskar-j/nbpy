@@ -199,6 +199,74 @@ NBPExchangeRate(EUR->PLN, 2017-11-02, bid=4.2036, ask=4.2886)
 {'bid': Decimal('4204.3000'), 'ask': Decimal('4289.3000')}
 ```
 
+Example
+-------
+Below script prints and summarises a list of invoices in foreign currencies.
+
+```python
+from datetime import datetime, timedelta
+from decimal import Decimal
+from nbpy import NBPClient
+from nbpy.errors import APIError
+
+
+class Invoice(object):
+    """Invoice class with builtin currency converter."""
+
+    def __init__(self, currency_code, date, amount):
+        self.currency_code = currency_code
+        self.date = date
+        self.amount = Decimal("{:.2f}".format(amount))
+
+        self._nbp = NBPClient(currency_code)
+
+    @property
+    def amount_in_pln(self):
+        exchange_rate = None
+        date = datetime.strptime(self.date, '%Y-%m-%d')
+        while exchange_rate is None:
+            # Get exchange rates until valid is found
+            try:
+                exchange_rate = self._nbp.date(date.strftime('%Y-%m-%d'))
+                break
+            except APIError:
+                date -= timedelta(days=1)
+
+        amount = (exchange_rate * self.amount)['mid']
+        return round(amount, 2)
+
+
+# List of invoices in foreign currencies
+invoices = [
+    Invoice('EUR', '2017-10-03', 650.0),
+    Invoice('EUR', '2017-10-06', 890.0),
+    Invoice('USD', '2017-10-11', 1230.0),
+]
+
+# Print all amounts in their currencies and PLN
+template = "{currency}    {amount:7.2f}  {amount_in_pln:7.2f}"
+for invoice in invoices:
+    print(template.format(
+        currency=invoice.currency_code,
+        amount=invoice.amount,
+        amount_in_pln=invoice.amount_in_pln,
+    ))
+
+# Sum all values in PLN
+# Since amount_in_pln were already called, script will use cached values
+# instead of calling NBP Web API
+sum_amount_in_pln = sum([invoice.amount_in_pln for invoice in invoices])
+
+print("-" * 23)
+print("        total: {sum:8.2f}".format(sum=sum_amount_in_pln))
+
+# EUR     650.00  2801.82
+# EUR     890.00  3830.74
+# USD    1230.00  4454.94
+# -----------------------
+#         total: 11087.50
+```
+
 License
 -------
 [MIT](LICENSE)
