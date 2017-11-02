@@ -41,8 +41,10 @@ class NBPExchangeRate(object):
         if 'bid' in kwargs and 'ask' in kwargs:
             self.bid = kwargs.get('bid')
             self.ask = kwargs.get('ask')
-        else:
+        elif 'mid' in kwargs:
             self.mid = kwargs.get('mid')
+        else:
+            raise ValueError("Neither mid nor both bid and ask were given")
 
     def __repr__(self):
         """Return repr(self)."""
@@ -99,7 +101,6 @@ class NBPExchangeRate(object):
             return {
                 'bid': self.bid * amount,
                 'ask': self.ask * amount,
-                'mid': self.mid * amount,
             }
         except AttributeError:
             return {
