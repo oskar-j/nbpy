@@ -1,4 +1,4 @@
-"""Tests for NBPConverter (with mock responses)."""
+"""Tests for NBPClient (with mock responses)."""
 
 import pytest
 import math
@@ -13,7 +13,7 @@ from nbpy import BASE_URI
 # Test currency codes
 test_currency_codes = ('EUR', 'HRK', 'GYD')
 
-# Kwargs for NBPConverter
+# Kwargs for NBPClient
 converter_kwargs = [
     {
         'currency_code': currency_code,
@@ -26,8 +26,8 @@ converter_kwargs = [
 ]
 
 def _converter(**kwargs):
-    from nbpy import NBPConverter
-    return NBPConverter(**kwargs)
+    from nbpy import NBPClient
+    return NBPClient(**kwargs)
 
 @pytest.mark.parametrize('kwargs', converter_kwargs)
 def test_converter_basic(kwargs):
@@ -39,7 +39,7 @@ def test_converter_basic(kwargs):
 
 @pytest.fixture(params=converter_kwargs)
 def converter(request):
-    """NBPConverter object."""
+    """NBPClient object."""
     return _converter(**request.param)
 
 
@@ -297,4 +297,3 @@ def test_date(converter, all_values, status_code):
     else:
         with pytest.raises(APIError):
             exchange_rate = converter.date(date, all_values=all_values)
-
