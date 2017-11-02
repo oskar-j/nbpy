@@ -37,8 +37,7 @@ def test_converter_basic(kwargs):
     assert converter.as_float == kwargs['as_float']
     assert converter.suppress_api_errors == kwargs['suppress_api_errors']
 
-@pytest.fixture(scope='module',
-                params=converter_kwargs)
+@pytest.fixture(params=converter_kwargs)
 def converter(request):
     """NBPConverter object."""
     return _converter(**request.param)
@@ -117,19 +116,31 @@ def _prepare_responses(**kwargs):
     date = kwargs.get('date')
     resource = kwargs.get('resource')
     as_float = kwargs.get('as_float', False)
+    status_code = kwargs.get('status_code', 200)
+
+    # Clear existing responses
+    responses.reset()
 
     for table in currency.tables:
+        # Create mock data
         mock = MockJSONData(table, currency, resource)
-        json_data = mock.data(date)
-        json_rates = json_data['rates'][0]
 
-        responses.add(
-            responses.Response(
-                method='GET', url=mock.uri,
-                json=json_data, status=200,
-                content_type='application/json'
+        if status_code == 200:
+            responses.add(
+                responses.Response(
+                    method='GET', url=mock.uri,
+                    json=mock.data(date), status=status_code,
+                    content_type='application/json'
+                )
             )
-        )
+        else:
+            responses.add(
+                responses.Response(
+                    method='GET', url=mock.uri,
+                    status=status_code,
+                    content_type='application/json'
+                )
+            )
 
 def _test_exchange_rate_single(exchange_rate, **kwargs):
     """Perform checks for NBPExchangeRate object."""
@@ -184,17 +195,22 @@ def test_current(converter, all_values):
         'date': datetime.today().strftime('%Y-%m-%d'),
         'resource': '',
         'all_values': all_values,
-        'as_float': converter.as_float
+        'as_float': converter.as_float,
+        'status_code': 200,
     }
 
     _prepare_responses(**kwargs)
     exchange_rate = converter.current(all_values=all_values)
-    _test_exchange_rate(current, **kwargs)
+    _test_exchange_rate(exchange_rate, **kwargs)
 
-@pytest.mark.parametrize("all_values", (False, True))
+@pytest.mark.parametrize("all_values,status_code",
+                         [(all_values, status_code)
+                          for all_values in (False, True)   
+                          for status_code in (200, 400, 404)])
 @responses.activate
-def test_today(converter, all_values):
+def test_today(converter, all_values, status_code):
     from nbpy.currencies import currencies
+    from nbpy.errors import APIError
 
     # Setup
     kwargs = {
@@ -202,9 +218,18 @@ def test_today(converter, all_values):
         'date': datetime.today().strftime('%Y-%m-%d'),
         'resource': 'today',
         'all_values': all_values,
-        'as_float': converter.as_float
+        'as_float': converter.as_float,
+        'status_code': status_code,
     }
 
     _prepare_responses(**kwargs)
-    exchange_rate = converter.today(all_values=all_values)
-    _test_exchange_rate(current, **kwargs)
+
+    if status_code == 200:
+        exchange_rate = converter.today(all_values=all_values)
+        _test_exchange_rate(exchange_rate, **kwargs)
+    elif converter.suppress_api_errors:
+        exchange_rate = converter.today(all_values=all_values)
+        assert exchange_rate is None
+    else:
+        with pytest.raises(APIError):
+            exchange_rate = converter.today(all_values=all_values)
