@@ -41,6 +41,15 @@ class NBPClient(object):
         cache_decorator = lru_cache(maxsize=self.cache_size)
         self._get_response_data = cache_decorator(self._get_response_data)
 
+    def __repr__(self):
+        return "{cls_name}({code}, as_float={as_float!s}, suppress_api_errors={suppress_api_errors!s}, cache_size={cache_size})".format(
+            cls_name=self.__class__.__name__,
+            code=self.currency_code,
+            as_float=self.as_float,
+            suppress_api_errors=self.suppress_api_errors,
+            cache_size=self.cache_size
+        )
+
     @property
     def currency_code(self):
         return self._currency_code
