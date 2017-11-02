@@ -182,7 +182,7 @@ def _test_exchange_rate(exchange_rate, **kwargs):
                           for bid_ask in (False, True)   
                           for status_code in (200, 400, 404)])
 @responses.activate
-def test_current(converter, bid_ask, status_code):
+def test_calls(converter, bid_ask, status_code):
     from nbpy.currencies import currencies
     from nbpy.errors import BidAskUnavailable, APIError
 
