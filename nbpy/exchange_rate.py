@@ -23,17 +23,17 @@ class NBPExchangeRate(object):
             ``datetime.datetime`` object or properly formatted date string
             (``YYYY-MM-DD``).
 
-        :param mid:
-            Average NBP exchange rate for ``date``.
-
         :param \**kwargs:
             See below.
 
         :Keyword Arguments:
+            * *mid* (``decimal.Decimal`` or ``float``) --
+              Average exchange rate for ``date``. Ignored if both ``bid`` and
+              ``ask`` are given.
             * *bid* (``decimal.Decimal`` or ``float``) --
-              Bid exchange rate. If given, ``ask`` is also required.
+              Bid exchange rate for ``date``. If given, ``ask`` is also required.
             * *ask* (``decimal.Decimal`` or ``float``) --
-              Ask exchange rate. If given, ``bid`` is also required.
+              Ask exchange rate for ``date``. If given, ``bid`` is also required.
         """
         self.currency_code = currency_code
         self.date = date
