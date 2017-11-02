@@ -85,9 +85,11 @@ def test_currency_mid(mid_data):
 def test_currency_bid_ask(bid_ask_data):
     exchange_rate = _test_currency_basic(bid_ask_data)
 
-    assert exchange_rate.mid == bid_ask_data['mid']
     assert exchange_rate.bid == bid_ask_data['bid']
     assert exchange_rate.ask == bid_ask_data['ask']
+
+    with pytest.raises(AttributeError):
+        exchange_rate.mid
 
 def test_currency_bid(bid_data):
     exchange_rate = _test_currency_basic(bid_data)
@@ -112,7 +114,7 @@ def test_currency_ask(ask_data):
 def test_currency_no_mid(basic_data):
     from nbpy.exchange_rate import NBPExchangeRate
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         exchange_rate = NBPExchangeRate(**basic_data)
 
 def test_currency_unknown_code(basic_data):
@@ -160,8 +162,6 @@ def _test_currency_converting(data, amount):
         for result_2 in results:
             assert result_1 == result_2
 
-    assert exchange_rate.mid * amount == data['mid'] * amount
-
     return amount, exchange_rate
 
 @pytest.mark.parametrize('amount',
@@ -170,6 +170,7 @@ def _test_currency_converting(data, amount):
 def test_currency_mid_converting(mid_data, amount):
     amount, exchange_rate = _test_currency_converting(mid_data, amount)
 
+    assert exchange_rate(amount)['mid'] == mid_data['mid'] * amount
     assert 'bid' not in exchange_rate(amount)
     assert 'ask' not in exchange_rate(amount)
 
@@ -179,6 +180,7 @@ def test_currency_mid_converting(mid_data, amount):
 def test_currency_bid_ask_converting(bid_ask_data, amount):
     amount, exchange_rate = _test_currency_converting(bid_ask_data, amount)
 
+    assert 'mid' not in exchange_rate(amount)
     assert exchange_rate(amount)['bid'] == bid_ask_data['bid'] * amount
     assert exchange_rate(amount)['ask'] == bid_ask_data['ask'] * amount
 
@@ -188,6 +190,7 @@ def test_currency_bid_ask_converting(bid_ask_data, amount):
 def test_currency_bid_converting(bid_data, amount):
     amount, exchange_rate = _test_currency_converting(bid_data, amount)
 
+    assert exchange_rate(amount)['mid'] == bid_data['mid'] * amount
     assert 'bid' not in exchange_rate(amount)
     assert 'ask' not in exchange_rate(amount)
 
@@ -197,5 +200,6 @@ def test_currency_bid_converting(bid_data, amount):
 def test_currency_ask_converting(ask_data, amount):
     amount, exchange_rate = _test_currency_converting(ask_data, amount)
 
+    assert exchange_rate(amount)['mid'] == ask_data['mid'] * amount
     assert 'bid' not in exchange_rate(amount)
     assert 'ask' not in exchange_rate(amount)
