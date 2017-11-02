@@ -3,7 +3,7 @@
 __all__ = (
     'NBPError',
     'UnknownCurrencyCode', 'DateFormattingError',
-    'APIError',
+    'BidAskUnavailable', 'APIError',
 )
 
 
@@ -19,6 +19,11 @@ class UnknownCurrencyCode(NBPError):
 
 class DateFormattingError(NBPError):
     """Raised for improperly formatted date strings (not YYYY-MM-DD)."""
+    pass
+
+
+class BidAskUnavailable(NBPError):
+    """Raised for bid/ask requests for not supported currencies."""
     pass
 
 
