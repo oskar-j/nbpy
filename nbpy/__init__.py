@@ -18,14 +18,30 @@ BASE_URI = "http://api.nbp.pl/api"
 
 
 class NBPClient(object):
-    """Converter between PLN and other currencies."""
+    """NBP Web API client."""
 
     # Template URI for NBP API calls
     _uri_template = BASE_URI + "/exchangerates/rates/{table}/{code}/{tail}"
 
     def __init__(self, currency_code, **kwargs):
-        """
-        Initialize for given `currency_code` and `amount`.
+        r"""
+        Initialize for given ``currency_code``.
+
+        :param currency_code:
+            Valid currency code (i.e. defined in nbpy.currencies.currencies).
+
+        :param \**kwargs:
+            See below.
+
+        :Keyword Arguments:
+            * *as_float* (``bool``) --
+              If ``True``, all exchange rates will be returned as ``float``s,
+              otherwise as ``decimal.Decimal``. Default: ``False``.
+            * *suppress_api_errors* (``bool``) --
+              If ``True``, all ``APIError``s are suppressed and instead all
+              API calls returns ``None``. Default: ``False``.
+            * *cache_size* (``int``) --
+              LRU cache size for API calls. Default: ``128``.
         """
         self.currency_code = currency_code
 
@@ -42,6 +58,7 @@ class NBPClient(object):
         self._get_response_data = cache_decorator(self._get_response_data)
 
     def __repr__(self):
+        """Return repr(self)."""
         return "{cls_name}({code}, as_float={as_float!s}, suppress_api_errors={suppress_api_errors!s}, cache_size={cache_size})".format(
             cls_name=self.__class__.__name__,
             code=self.currency_code,
@@ -52,6 +69,7 @@ class NBPClient(object):
 
     @property
     def currency_code(self):
+        """Currency code (ISO 4217)."""
         return self._currency_code
 
     @currency_code.setter
@@ -117,23 +135,28 @@ class NBPClient(object):
 
     @first_if_sequence
     def current(self, all_values=False):
+        """Return earliest available exchange rate."""
         return self._get_response_data('', all_values)
 
     @first_if_sequence
     def today(self, all_values=False):
+        """Return exchange rate from today."""
         return self._get_response_data('today', all_values)
 
     def last(self, n, all_values=False):
+        """Return last ``n`` exchange rates."""
         uri_tail = "last/{:d}".format(n)
         return self._get_response_data(uri_tail, all_values)
 
     @first_if_sequence
     def date(self, date, all_values=False):
+        """Return exchange rate from ``date``."""
         validate_date(date)
 
         return self._get_response_data(date, all_values)
 
     def date_range(self, start_date, end_date, all_values=False):
+        """Return exchange rates from ``start_date`` to ``end_date``."""
         validate_date(start_date)
         validate_date(end_date)
 
@@ -141,4 +164,5 @@ class NBPClient(object):
         return self._get_response_data(uri_tail, all_values)
 
     def __call__(self, all_values=False):
+        """Return ``self.current()``."""
         return self.current(all_values)

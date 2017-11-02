@@ -13,7 +13,28 @@ class NBPExchangeRate(object):
     """Holds information about exchange rates for given currency and day."""
 
     def __init__(self, currency_code, date, mid, **kwargs):
-        """Initialize for currency code, date and avg (mid) value."""
+        r"""
+        Initialize for currency code, date and avg (mid) value.
+
+        :param currency_code:
+            Valid currency code (i.e. defined in nbpy.currencies.currencies).
+
+        :param date:
+            ``datetime.datetime`` object or properly formatted date string
+            (``YYYY-MM-DD``).
+
+        :param mid:
+            Average NBP exchange rate for ``date``.
+
+        :param \**kwargs:
+            See below.
+
+        :Keyword Arguments:
+            * *bid* (``decimal.Decimal`` or ``float``) --
+              Bid exchange rate. If given, ``ask`` is also required.
+            * *ask* (``decimal.Decimal`` or ``float``) --
+              Ask exchange rate. If given, ``bid`` is also required.
+        """
         self.currency_code = currency_code
         self.date = date
         self.mid = mid
@@ -23,6 +44,7 @@ class NBPExchangeRate(object):
             self.ask = kwargs.get('ask')
 
     def __repr__(self):
+        """Return repr(self)."""
         try:
             return "{cls_name}({code}->PLN, {date}, mid={mid}, bid={bid}, ask={ask})".format(
                 cls_name=self.__class__.__name__,
@@ -42,7 +64,7 @@ class NBPExchangeRate(object):
 
     @property
     def currency_code(self):
-        """Currency code."""
+        """Currency code (ISO 4217)."""
         return self._currency_code
 
     @currency_code.setter
@@ -71,23 +93,23 @@ class NBPExchangeRate(object):
         else:
             self._date = datetime.strptime(date, "%Y-%m-%d")
 
-    def __call__(self, amount_in_pln):
-        """Convert amount in PLN to chosen currency."""
+    def __call__(self, amount):
+        """Convert amount in chosen currency to PLN."""
         try:
             return {
-                'bid': self.bid * amount_in_pln,
-                'ask': self.ask * amount_in_pln,
-                'mid': self.mid * amount_in_pln,
+                'bid': self.bid * amount,
+                'ask': self.ask * amount,
+                'mid': self.mid * amount,
             }
         except AttributeError:
             return {
-                'mid': self.mid * amount_in_pln,
+                'mid': self.mid * amount,
             }
 
-    def __mul__(self, amount_in_pln):
-        """Convert amount in PLN to chosen currency."""
-        return self(amount_in_pln)
+    def __mul__(self, amount):
+        """Convert amount in chosen currency to PLN."""
+        return self(amount)
 
-    def __rmul__(self, amount_in_pln):
-        """Convert amount in PLN to chosen currency."""
-        return self(amount_in_pln)
+    def __rmul__(self, amount):
+        """Convert amount in chosen currency to PLN."""
+        return self(amount)

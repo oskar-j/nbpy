@@ -1,5 +1,6 @@
 """
 Available tables and currencies.
+
 Data taken from /api/exchangerates/tables/{a,b,c}/ API calls.
 """
 
@@ -7,15 +8,34 @@ import json
 
 
 class NBPCurrency(object):
-    """Helper class holding basic currency info."""
+    """
+    Helper class holding basic currency info.
+
+    This class shouldn't be used outside of ``currencies`` from this
+    submodule.
+    """
 
     def __init__(self, code, name, tables):
+        r"""
+        NBPCurrency init.
+
+        :param code:
+            Currency code in accordance to ISO 4217 standard. Argument is not
+            validated, you are free to use any string.
+
+        :param name:
+            Currency full name.
+
+        :param tables:
+            Container with tables available to given currency.
+        """
         self.code = code
         self.name = name
         self.tables = set(tables)
 
     def __repr__(self):
-        return "{cls_name}({name}, code={code}, tables={tables})".format(
+        """Return repr(self)."""
+        return "{cls_ame}({name}, code={code}, tables={tables})".format(
             cls_name=self.__class__.__name__,
             name=self.name,
             code=self.code,
@@ -23,6 +43,7 @@ class NBPCurrency(object):
         )
 
     def __str__(self):
+        """Return str(self)."""
         return self.name
 
 
