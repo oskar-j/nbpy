@@ -18,11 +18,11 @@ converter_kwargs = [
     {
         'currency_code': currency_code,
         'as_float': as_float,
-        'suppress_api_errors': suppress_api_errors
+        'suppress_errors': suppress_errors
     }
     for currency_code in test_currency_codes
     for as_float in (False, True)
-    for suppress_api_errors in (False, True)
+    for suppress_errors in (False, True)
 ]
 
 def _converter(**kwargs):
@@ -35,7 +35,7 @@ def test_converter_basic(kwargs):
 
     assert converter.currency_code == kwargs['currency_code']
     assert converter.as_float == kwargs['as_float']
-    assert converter.suppress_api_errors == kwargs['suppress_api_errors']
+    assert converter.suppress_errors == kwargs['suppress_errors']
 
 @pytest.fixture(params=converter_kwargs)
 def converter(request):
@@ -148,7 +148,7 @@ def _test_exchange_rate_single(exchange_rate, **kwargs):
 
     currency = kwargs.get('currency')
     date = kwargs.get('date')
-    all_values = kwargs.get('all_values', False)
+    bid_ask = kwargs.get('bid_ask', False)
     as_float = kwargs.get('as_float', False)
 
     # Basic checks
@@ -163,18 +163,11 @@ def _test_exchange_rate_single(exchange_rate, **kwargs):
     else:
         rates_cls = Decimal
 
-    assert isinstance(exchange_rate.mid, rates_cls)
-
-    if all_values and 'C' in currency.tables:
+    if bid_ask and 'C' in currency.tables:
         assert isinstance(exchange_rate.bid, rates_cls)
         assert isinstance(exchange_rate.ask, rates_cls)
-
-    if not all_values and 'C' in currency.tables:
-        # Check if bid and ask not set
-        with pytest.raises(AttributeError):
-            exchange_rate.bid
-        with pytest.raises(AttributeError):
-            exchange_rate.ask
+    else:
+        assert isinstance(exchange_rate.mid, rates_cls)
 
 def _test_exchange_rate(exchange_rate, **kwargs):
     """Perform checks for NBPExchangeRate object or their sequence."""
@@ -184,116 +177,78 @@ def _test_exchange_rate(exchange_rate, **kwargs):
     else:
         _test_exchange_rate_single(exchange_rate, **kwargs)
 
-@pytest.mark.parametrize("all_values", (False, True))
+@pytest.mark.parametrize("bid_ask,status_code",
+                         [(bid_ask, status_code)
+                          for bid_ask in (False, True)   
+                          for status_code in (200, 400, 404)])
 @responses.activate
-def test_current(converter, all_values):
+def test_current(converter, bid_ask, status_code):
     from nbpy.currencies import currencies
+    from nbpy.errors import BidAskUnavailable, APIError
 
     # Setup
     kwargs = {
         'currency': currencies[converter.currency_code],
         'date': datetime.today().strftime('%Y-%m-%d'),
-        'resource': '',
-        'all_values': all_values,
-        'as_float': converter.as_float,
-        'status_code': 200,
-    }
-
-    _prepare_responses(**kwargs)
-    exchange_rate = converter.current(all_values=all_values)
-    _test_exchange_rate(exchange_rate, **kwargs)
-
-@pytest.mark.parametrize("all_values,status_code",
-                         [(all_values, status_code)
-                          for all_values in (False, True)   
-                          for status_code in (200, 400, 404)])
-@responses.activate
-def test_today(converter, all_values, status_code):
-    from nbpy.currencies import currencies
-    from nbpy.errors import APIError
-
-    # Setup
-    kwargs = {
-        'currency': currencies[converter.currency_code],
-        'date': datetime.today().strftime('%Y-%m-%d'),
-        'resource': 'today',
-        'all_values': all_values,
+        'bid_ask': bid_ask,
         'as_float': converter.as_float,
         'status_code': status_code,
     }
 
-    _prepare_responses(**kwargs)
+    calls_to_test = (
+        {
+            'name': 'current',
+            'resource': '',
+            'args': ()
+        },
+        {
+            'name': 'today',
+            'resource': 'today',
+            'args': ()
+        },
+        {
+            'name': '__call__',
+            'resource': '',
+            'args': ()
+        },
+        {
+            'name': 'date',
+            'resource': kwargs['date'],
+            'args': (kwargs['date'],)
+        },
+    )
 
-    if status_code == 200:
-        exchange_rate = converter.today(all_values=all_values)
-        _test_exchange_rate(exchange_rate, **kwargs)
-    elif converter.suppress_api_errors:
-        exchange_rate = converter.today(all_values=all_values)
-        assert exchange_rate is None
-    else:
-        with pytest.raises(APIError):
-            exchange_rate = converter.today(all_values=all_values)
+    bid_ask_should_fail = (bid_ask and 'C' not in kwargs['currency'].tables)
 
-@pytest.mark.parametrize("all_values,status_code",
-                         [(all_values, status_code)
-                          for all_values in (False, True)   
-                          for status_code in (200, 400, 404)])
-@responses.activate
-def test_call(converter, all_values, status_code):
-    from nbpy.currencies import currencies
-    from nbpy.errors import APIError
+    for call in calls_to_test:
+        test_call = getattr(converter, call['name'])
+        kwargs['resource'] = call['resource']
 
-    # Setup
-    kwargs = {
-        'currency': currencies[converter.currency_code],
-        'date': datetime.today().strftime('%Y-%m-%d'),
-        'resource': '',
-        'all_values': all_values,
-        'as_float': converter.as_float,
-        'status_code': status_code,
-    }
+        _prepare_responses(**kwargs)
 
-    _prepare_responses(**kwargs)
+        # Error subtest
+        def _test_converter_error(exception_cls):
+            if converter.suppress_errors:
+                # Exceptions suppressed
+                assert test_call(*call['args'], bid_ask=bid_ask) is None
+            else:
+                with pytest.raises(exception_cls):
+                    test_call(*call['args'], bid_ask=bid_ask)
 
-    if status_code == 200:
-        exchange_rate = converter(all_values=all_values)
-        _test_exchange_rate(exchange_rate, **kwargs)
-    elif converter.suppress_api_errors:
-        exchange_rate = converter(all_values=all_values)
-        assert exchange_rate is None
-    else:
-        with pytest.raises(APIError):
-            exchange_rate = converter(all_values=all_values)
+        if status_code != 200:
+            # HTTP Errors
+            if bid_ask_should_fail:
+                exception_cls = BidAskUnavailable
+            else:
+                exception_cls = APIError
 
-@pytest.mark.parametrize("all_values,status_code",
-                         [(all_values, status_code)
-                          for all_values in (False, True)   
-                          for status_code in (200, 400, 404)])
-@responses.activate
-def test_date(converter, all_values, status_code):
-    from nbpy.currencies import currencies
-    from nbpy.errors import APIError
+            _test_converter_error(exception_cls)
 
-    # Setup
-    date = datetime.today().strftime('%Y-%m-%d')
+        elif bid_ask_should_fail:
+            # HTTP OK, but bid/ask call should fail for currency
+            _test_converter_error(BidAskUnavailable)
 
-    kwargs = {
-        'currency': currencies[converter.currency_code],
-        'date': date,
-        'resource': date,
-        'all_values': all_values,
-        'as_float': converter.as_float,
-        'status_code': status_code,
-    }
-
-    _prepare_responses(**kwargs)
-
-    if status_code == 200:
-        exchange_rate = converter.date(date, all_values=all_values)
-        _test_exchange_rate(exchange_rate, **kwargs)
-    elif converter.suppress_api_errors:
-        exchange_rate = converter.date(date, all_values=all_values)
-        assert exchange_rate is None
-    else:
-        with pytest.raises(APIError):
-            exchange_rate = converter.date(date, all_values=all_values)
+        else:
+            # All should be fine
+            exchange_rate = test_call(*call['args'], bid_ask=bid_ask)
+            _test_exchange_rate(exchange_rate, **kwargs)
