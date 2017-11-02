@@ -4,7 +4,7 @@ import requests
 from decimal import Decimal
 from functools import lru_cache
 from .version import version as __version__
-from .errors import UnknownCurrencyCode, APIError
+from .errors import UnknownCurrencyCode, BidAskUnavailable, APIError
 from .utils import validate_date, first_if_sequence
 from .currencies import currencies
 from .exchange_rate import NBPExchangeRate
@@ -84,85 +84,87 @@ class NBPClient(object):
         """Read-only LRU cache size."""
         return self._cache_size
 
-    def _get_response_data(self, uri_tail, all_values=False):
+    def _get_response_data(self, uri_tail, bid_ask=False):
         """Return HTTP response data from API call."""
-        tables = currencies[self.currency_code].tables.copy()
-        if not all_values:
-            # Avoid bid/ask values
-            tables.discard('C')
+        table = currencies[self.currency_code].tables.copy()
 
-        rates = {}
+        if bid_ask:
+            # Only bid/ask rates
+            if 'C' not in table:
+                error_msg = "Bid/ask unavailable for {}".format(
+                    self.currency_code
+                )
+                raise BidAskUnavailable(error_msg)
+            table = 'C'
+        else:
+            # Only mid rate
+            table.discard('C')
+            table = table.pop()
 
-        for table in tables:
-            uri = self._uri_template.format(
-                code=self.currency_code.lower(),
-                table=table.lower(),
-                tail=uri_tail.lower()
-            )
+        uri = self._uri_template.format(
+            code=self.currency_code.lower(),
+            table=table.lower(),
+            tail=uri_tail.lower()
+        )
 
-            # Send request to API, raise exception on error
-            try:
-                headers = {'Accept': 'application/json'}
-                r = requests.get(uri, headers=headers)
-                r.raise_for_status()
-            except Exception as e:
-                if self.suppress_api_errors:
-                    # Return None if errors suppressed
-                    return None
-                raise APIError(str(e))
+        # Send request to API, raise exception on error
+        try:
+            headers = {'Accept': 'application/json'}
+            r = requests.get(uri, headers=headers)
+            r.raise_for_status()
+        except Exception as e:
+            if self.suppress_api_errors:
+                # Return None if errors suppressed
+                return None
+            raise APIError(str(e))
 
-            # Parse data with values as decimals
-            if self.as_float:
-                parse_float_cls = float
-            else:
-                parse_float_cls = Decimal
+        # Parse data with values as decimals
+        if self.as_float:
+            parse_float_cls = float
+        else:
+            parse_float_cls = Decimal
 
-            _data = r.json(parse_float=parse_float_cls)['rates']
-            _data = {rate['effectiveDate']: rate for rate in _data}
-            for date in _data:
-                if date in rates:
-                    rates[date].update(_data[date])
-                else:
-                    rates[date] = _data[date]
+        rates = r.json(parse_float=parse_float_cls)['rates']
+        rates = {rate['effectiveDate']: rate for rate in rates}
 
         return sorted([
             NBPExchangeRate(
                 currency_code=self.currency_code,
                 date=rate['effectiveDate'],
                 **rate
-            ) for rate in rates.values() if 'mid' in rate
-        ], key=lambda rate: rate.date)
+            ) for rate in rates.values()
+        ], key=lambda r: r.date)
 
     @first_if_sequence
-    def current(self, all_values=False):
+    def current(self, bid_ask=False):
         """Return earliest available exchange rate."""
-        return self._get_response_data('', all_values)
+        return self._get_response_data('', bid_ask)
 
     @first_if_sequence
-    def today(self, all_values=False):
+    def today(self, bid_ask=False):
         """Return exchange rate from today."""
-        return self._get_response_data('today', all_values)
+        return self._get_response_data('today', bid_ask)
 
-    def last(self, n, all_values=False):
+    def last(self, n, bid_ask=False):
         """Return last ``n`` exchange rates."""
         uri_tail = "last/{:d}".format(n)
-        return self._get_response_data(uri_tail, all_values)
+        return self._get_response_data(uri_tail, bid_ask)
 
     @first_if_sequence
-    def date(self, date, all_values=False):
+    def date(self, date, bid_ask=False):
         """Return exchange rate from ``date``."""
         validate_date(date)
 
-        return self._get_response_data(date, all_values)
+        return self._get_response_data(date, bid_ask)
 
-    def date_range(self, start_date, end_date, all_values=False):
+    def date_range(self, start_date, end_date, bid_ask=False):
         """Return exchange rates from ``start_date`` to ``end_date``."""
         validate_date(start_date)
         validate_date(end_date)
 
         uri_tail = "{}/{}".format(start_date, end_date)
-        return self._get_response_data(uri_tail, all_values)
+        return self._get_response_data(uri_tail, bid_ask)
 
-    def __call__(self, all_values=False):
+    def __call__(self, bid_ask=False):
         """Return ``self.current()``."""
-        return self.current(all_values)
+        return self.current(bid_ask)

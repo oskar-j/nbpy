@@ -12,7 +12,7 @@ __all__ = ('NBPExchangeRate',)
 class NBPExchangeRate(object):
     """Holds information about exchange rates for given currency and day."""
 
-    def __init__(self, currency_code, date, mid, **kwargs):
+    def __init__(self, currency_code, date, **kwargs):
         r"""
         Initialize for currency code, date and avg (mid) value.
 
@@ -37,20 +37,20 @@ class NBPExchangeRate(object):
         """
         self.currency_code = currency_code
         self.date = date
-        self.mid = mid
 
         if 'bid' in kwargs and 'ask' in kwargs:
             self.bid = kwargs.get('bid')
             self.ask = kwargs.get('ask')
+        else:
+            self.mid = kwargs.get('mid')
 
     def __repr__(self):
         """Return repr(self)."""
         try:
-            return "{cls_name}({code}->PLN, {date}, mid={mid}, bid={bid}, ask={ask})".format(
+            return "{cls_name}({code}->PLN, {date}, bid={bid}, ask={ask})".format(
                 cls_name=self.__class__.__name__,
                 code=self.currency_code,
                 date=self.date.strftime('%Y-%m-%d'),
-                mid=self.mid,
                 bid=self.bid,
                 ask=self.ask
             )
