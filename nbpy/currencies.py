@@ -25,6 +25,7 @@ class NBPCurrency(object):
     def __str__(self):
         return self.name
 
+
 #: Available currencies
 currencies = {
     'AED': {'name': 'United Arab Emirates dirham',

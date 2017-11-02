@@ -11,7 +11,7 @@ def validate_date(date):
     if not isinstance(date, datetime):
         try:
             datetime.strptime(date, "%Y-%m-%d")
-        except:
+        except Exception:
             raise DateFormattingError(
                 "{} not properly formatted date (YYYY-MM-DD)".format(date)
             )
