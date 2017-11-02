@@ -1,8 +1,10 @@
 """NBPy errors."""
 
-__all__ = [
-    'NBPError', 'UnknownCurrencyCode', 'DateFormattingError', 'APIError'
-]
+__all__ = (
+    'NBPError',
+    'UnknownCurrencyCode', 'DateFormattingError',
+    'APIError',
+)
 
 
 class NBPError(Exception):

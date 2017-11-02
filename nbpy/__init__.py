@@ -10,7 +10,7 @@ from .currencies import currencies
 from .exchange_rate import NBPExchangeRate
 
 
-__all__ = ['NBPClient']
+__all__ = ('NBPClient',)
 
 
 #: Base URI

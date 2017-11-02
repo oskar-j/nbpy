@@ -6,7 +6,7 @@ from nbpy.currencies import currencies
 from nbpy.utils import validate_date
 
 
-__all__ = ['NBPExchangeRate']
+__all__ = ('NBPExchangeRate',)
 
 
 class NBPExchangeRate(object):
