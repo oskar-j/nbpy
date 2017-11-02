@@ -16,10 +16,10 @@ NBPy provides a ``NBPClient`` class for generating API callers, given available 
 {'EUR': NBPCurrency(Euro, code=EUR, tables={'A', 'C'}), 'USD': NBPCurrency(United States dollar, code=USD, tables={'A', 'C'}), ...}
 >>> nbp = nbpy.NBPClient('eur')
 >>> nbp
-NBPClient(USD, as_float=False, suppress_api_errors=False, cache_size=128)
+NBPClient(USD, as_float=False, suppress_errors=False, cache_size=128)
 >>> nbp.currency_code = 'EUR'
 >>> nbp
-NBPClient(EUR, as_float=False, suppress_api_errors=False, cache_size=128)
+NBPClient(EUR, as_float=False, suppress_errors=False, cache_size=128)
 ```
 
 ``currency_code`` has to be one of the available codes from ``nbpy.currencies`` otherwise ``NBPClient`` returns ``UnknownCurrencyCode``.
@@ -133,8 +133,8 @@ NBPExchangeRate(CUP->PLN, 2017-10-31, mid=3.6529)
 Bid/ask unavailable
 ```
 
-### Suppressing API errors
-If you want API calls to always return something, despite possible issues with API, you can pass ``suppress_api_errors=True`` to ``NBPClient``. With this flag turned on API calls instead of raising ``APIError``s will return ``None``.
+### Suppressing errors
+If you want API calls to always return something, despite possible issues with API, you can pass ``suppress_errors=True`` to ``NBPClient``. With this flag turned on API calls instead of raising ``BidAskUnavailable``s and ``APIError``s will return ``None``.
 
 ```python
 >>> from nbp.errors import APIError
@@ -144,7 +144,7 @@ If you want API calls to always return something, despite possible issues with A
 ...     print('Invalid date range')
 ...
 Invalid date range
->>> nbp.suppress_api_errors = True
+>>> nbp.suppress_errors = True
 >>> print(nbp.date_range('2017-01-01', '2017-06-01'))
 None
 ```
@@ -155,7 +155,7 @@ For efficiency, ``NBPClient`` utilizes LRU cache for by saving last 128 calls. Y
 ```python
 >>> nbp = NBPClient('eur', cache_size=64)
 >>> nbp
-NBPClient(EUR, as_float=False, suppress_api_errors=False, cache_size=64)
+NBPClient(EUR, as_float=False, suppress_errors=False, cache_size=64)
 >>> try:
 ...     nbp.cache_size = 128
 ... except AttributeError:

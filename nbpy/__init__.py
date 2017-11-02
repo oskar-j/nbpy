@@ -37,9 +37,10 @@ class NBPClient(object):
             * *as_float* (``bool``) --
               If ``True``, all exchange rates will be returned as ``float``s,
               otherwise as ``decimal.Decimal``. Default: ``False``.
-            * *suppress_api_errors* (``bool``) --
-              If ``True``, all ``APIError``s are suppressed and instead all
-              API calls returns ``None``. Default: ``False``.
+            * *suppress_errors* (``bool``) --
+              If ``True``, all ``BidAskUnavailable``s and ``APIError``s are
+              suppressed and instead all API calls returns ``None``.
+              Default: ``False``.
             * *cache_size* (``int``) --
               LRU cache size for API calls. Default: ``128``.
         """
@@ -49,7 +50,7 @@ class NBPClient(object):
         self.as_float = kwargs.get('as_float', False)
 
         #: If True, instead of raising APIErrors return None
-        self.suppress_api_errors = kwargs.get('suppress_api_errors', False)
+        self.suppress_errors = kwargs.get('suppress_errors', False)
 
         #: Max size for LRU cache.
         self._cache_size = kwargs.get('cache_size', 128)
@@ -59,11 +60,11 @@ class NBPClient(object):
 
     def __repr__(self):
         """Return repr(self)."""
-        return "{cls_name}({code}, as_float={as_float!s}, suppress_api_errors={suppress_api_errors!s}, cache_size={cache_size})".format(
+        return "{cls_name}({code}, as_float={as_float!s}, suppress_errors={suppress_errors!s}, cache_size={cache_size})".format(
             cls_name=self.__class__.__name__,
             code=self.currency_code,
             as_float=self.as_float,
-            suppress_api_errors=self.suppress_api_errors,
+            suppress_errors=self.suppress_errors,
             cache_size=self.cache_size
         )
 
@@ -91,6 +92,9 @@ class NBPClient(object):
         if bid_ask:
             # Only bid/ask rates
             if 'C' not in table:
+                if self.suppress_errors:
+                    # Return None if errors suppressed
+                    return None
                 error_msg = "Bid/ask unavailable for {}".format(
                     self.currency_code
                 )
@@ -113,7 +117,7 @@ class NBPClient(object):
             r = requests.get(uri, headers=headers)
             r.raise_for_status()
         except Exception as e:
-            if self.suppress_api_errors:
+            if self.suppress_errors:
                 # Return None if errors suppressed
                 return None
             raise APIError(str(e))
