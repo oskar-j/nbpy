@@ -36,7 +36,7 @@ class NBPClient(object):
         self.suppress_api_errors = kwargs.get('suppress_api_errors', False)
 
         #: Max size for LRU cache.
-        self.cache_size = kwargs.get('cache_size', 128)
+        self._cache_size = kwargs.get('cache_size', 128)
 
         cache_decorator = lru_cache(maxsize=self.cache_size)
         self._get_response_data = cache_decorator(self._get_response_data)
@@ -60,6 +60,11 @@ class NBPClient(object):
         if code not in currencies:
             raise UnknownCurrencyCode(code)
         self._currency_code = code
+
+    @property
+    def cache_size(self):
+        """Read-only LRU cache size."""
+        return self._cache_size
 
     def _get_response_data(self, uri_tail, all_values=False):
         """Return HTTP response data from API call."""
