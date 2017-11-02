@@ -35,7 +35,7 @@ class NBPCurrency(object):
 
     def __repr__(self):
         """Return repr(self)."""
-        return "{cls_ame}({name}, code={code}, tables={tables})".format(
+        return "{cls_name}({name}, code={code}, tables={tables})".format(
             cls_name=self.__class__.__name__,
             name=self.name,
             code=self.code,
