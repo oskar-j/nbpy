@@ -107,7 +107,7 @@ class NBPClient(object):
                 currency_code=self.currency_code,
                 date=rate['effectiveDate'],
                 **rate
-            ) for rate in rates.values()
+            ) for rate in rates.values() if 'mid' in rate
         ], key=lambda rate: rate.date)
 
     @first_if_sequence
