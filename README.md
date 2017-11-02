@@ -113,19 +113,24 @@ Invalid date range
 ```
 
 #### Bid/ask rates
-By default all API call methods return average exchange rate (`mid`). However, by passing `all_values=True` you can additionally get bid/ask values. Not that not every currency has them available: for such case `all_values` is ignored.
+By default all API call methods return average exchange rate (`mid`). However, by passing `bid_ask=True` you can additionally get bid/ask values. Not that not every currency has them available: for such case `bid_ask` is ignored.
 
 ```python
 >>> nbp()
 NBPExchangeRate(EUR->PLN, 2017-10-31, mid=4.2498)
->>> nbp(all_values=True)
-NBPExchangeRate(EUR->PLN, 2017-10-31, mid=4.2498, bid=4.2043, ask=4.2893)
+>>> nbp(bid_ask=True)
+NBPExchangeRate(EUR->PLN, 2017-11-02, bid=4.2036, ask=4.2886)
 >>> #: No bid/ask values for CUP
 >>> nbp.currency_code = 'CUP'
 >>> nbp()
 NBPExchangeRate(CUP->PLN, 2017-10-31, mid=3.6529)
->>> nbp(all_values=True)
-NBPExchangeRate(CUP->PLN, 2017-10-31, mid=3.6529)
+>>> from nbpy.errors import BidAskUnavailable
+>>> try:
+...     nbp(bid_ask=True)
+... except BidAskUnavailable:
+...     print('Bid/ask unavailable')
+...
+Bid/ask unavailable
 ```
 
 ### Suppressing API errors
@@ -189,9 +194,9 @@ NBPExchangeRate(EUR->PLN, 2017-10-31, mid=4.2498)
 >>>
 >>> exchange_rate = nbp(all_values=True)
 >>> exchange_rate
-NBPExchangeRate(EUR->PLN, 2017-10-31, mid=4.2498, bid=4.2043, ask=4.2893)
+NBPExchangeRate(EUR->PLN, 2017-11-02, bid=4.2036, ask=4.2886)
 >>> exchange_rate(amount)
-{'mid': Decimal('4249.8000'), 'bid': Decimal('4204.3000'), 'ask': Decimal('4289.3000')}
+{'bid': Decimal('4204.3000'), 'ask': Decimal('4289.3000')}
 ```
 
 License
