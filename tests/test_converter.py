@@ -188,8 +188,7 @@ def test_current(converter, all_values):
     }
 
     _prepare_responses(**kwargs)
-    current = converter.current(all_values=all_values)
-
+    exchange_rate = converter.current(all_values=all_values)
     _test_exchange_rate(current, **kwargs)
 
 @pytest.mark.parametrize("all_values", (False, True))
@@ -207,6 +206,5 @@ def test_today(converter, all_values):
     }
 
     _prepare_responses(**kwargs)
-    current = converter.today(all_values=all_values)
-
+    exchange_rate = converter.today(all_values=all_values)
     _test_exchange_rate(current, **kwargs)
