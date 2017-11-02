@@ -233,3 +233,34 @@ def test_today(converter, all_values, status_code):
     else:
         with pytest.raises(APIError):
             exchange_rate = converter.today(all_values=all_values)
+
+@pytest.mark.parametrize("all_values,status_code",
+                         [(all_values, status_code)
+                          for all_values in (False, True)   
+                          for status_code in (200, 400, 404)])
+@responses.activate
+def test_call(converter, all_values, status_code):
+    from nbpy.currencies import currencies
+    from nbpy.errors import APIError
+
+    # Setup
+    kwargs = {
+        'currency': currencies[converter.currency_code],
+        'date': datetime.today().strftime('%Y-%m-%d'),
+        'resource': '',
+        'all_values': all_values,
+        'as_float': converter.as_float,
+        'status_code': status_code,
+    }
+
+    _prepare_responses(**kwargs)
+
+    if status_code == 200:
+        exchange_rate = converter(all_values=all_values)
+        _test_exchange_rate(exchange_rate, **kwargs)
+    elif converter.suppress_api_errors:
+        exchange_rate = converter(all_values=all_values)
+        assert exchange_rate is None
+    else:
+        with pytest.raises(APIError):
+            exchange_rate = converter(all_values=all_values)
