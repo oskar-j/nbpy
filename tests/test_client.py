@@ -117,6 +117,14 @@ def _prepare_responses(**kwargs):
     resource = kwargs.get('resource')
     as_float = kwargs.get('as_float', False)
     status_code = kwargs.get('status_code', 200)
+    amount = kwargs.get('amount', None)
+    end_date = kwargs.get('end_date', None)
+
+    if not end_date and amount:
+        # If required amount of records given without end_date,
+        # enforce one.
+        end_date = datetime.strptime(date, "%Y-%m-%d")
+        end_date += timedelta(days=amount-1)
 
     # Clear existing responses
     responses.reset()
@@ -129,7 +137,7 @@ def _prepare_responses(**kwargs):
             responses.add(
                 responses.Response(
                     method='GET', url=mock.uri,
-                    json=mock.data(date), status=status_code,
+                    json=mock.data(date, end_date), status=status_code,
                     content_type='application/json'
                 )
             )
