@@ -3,6 +3,7 @@
 import pytest
 import requests
 import responses
+import copy
 from collections import Sequence
 from datetime import datetime
 from decimal import Decimal
@@ -139,18 +140,30 @@ def test_calls(converter, bid_ask, status_code):
             # All should be fine
             result = test_call(*args, bid_ask=bid_ask)
             _test_call_result(
-                result, currency,
+                result, currency, json,
                 bid_ask=bid_ask,
                 as_float=converter.as_float
             )
 
 
-def _test_call_result(result, currency, **kwargs):
+def _test_call_result(result, currency, json_data, **kwargs):
     """Test call result."""
     if isinstance(result, Sequence):
         for exchange_rate in result:
             # Test for each exchange rate
-            _test_call_result(exchange_rate, currency, **kwargs)
+            exchange_rate_date = exchange_rate.date.strftime('%Y-%m-%d')
+            json_rate = next((
+                rate for rate in json_data['rates']
+                if rate['effectiveDate'] == exchange_rate_date
+            ), None)
+
+            # Excange rate must exist
+            assert json_rate is not None
+
+            json_data_single = copy.deepcopy(json_data)
+            json_data_single['rates'] = [json_rate]
+            _test_call_result(exchange_rate, currency, json_data_single,
+                              **kwargs)
 
     else:
         from nbpy.exchange_rate import NBPExchangeRate
@@ -158,18 +171,27 @@ def _test_call_result(result, currency, **kwargs):
         bid_ask = kwargs.get('bid_ask')
         as_float = kwargs.get('as_float')
 
-        assert isinstance(result, NBPExchangeRate)
-        assert result.currency_code == currency.code
-        assert result.currency_name == currency.name
-
-        # Check mid, bid and ask
         if as_float:
             rates_cls = float
         else:
             rates_cls = Decimal
 
+        json_rate = json_data['rates'][0]
+
+        # Basic assertions
+        assert isinstance(result, NBPExchangeRate)
+        assert result.currency_code == currency.code
+        assert result.currency_name == currency.name
+        assert result.date.strftime('%Y-%m-%d') == json_rate['effectiveDate']
+
+        # Check mid, bid and ask
         if bid_ask:
             assert isinstance(result.bid, rates_cls)
             assert isinstance(result.ask, rates_cls)
+
+            assert (result.bid - rates_cls(json_rate['bid'])) < 1e-5
+            assert (result.ask - rates_cls(json_rate['ask'])) < 1e-5
         else:
             assert isinstance(result.mid, rates_cls)
+
+            assert (result.mid - rates_cls(json_rate['mid'])) < 1e-5
