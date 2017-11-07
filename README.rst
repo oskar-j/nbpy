@@ -6,7 +6,7 @@ NPBy
 
 A utility package for calling `NBP (Polish National Bank) Web API <http://api.nbp.pl/en.html>`_ and converting various currencies to Polish zloty using its exchange rates.
 
-NBPy requires Python 3.0 or newer
+NBPy requires Python 3.3 or newer
 
 Installation
 ------------
