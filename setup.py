@@ -31,4 +31,27 @@ setup(
     packages=['nbpy'],
     install_requires=requirements,
     python_requires='>=3.3',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+
+        'Environment :: Web Environment',
+        'Environment :: Other Environment',
+        'Operating System :: OS Independent',
+
+        'Intended Audience :: Developers',
+        'Intended Audience :: Financial and Insurance Industry',
+
+        'License :: OSI Approved :: MIT License',
+
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+
+        'Topic :: Office/Business :: Financial :: Accounting',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Utilities',
+
+    ],
 )
