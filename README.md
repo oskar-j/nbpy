@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kuszaj/nbpy.svg?branch=master)](https://travis-ci.org/kuszaj/nbpy)
+
 NPBy
 =========
 
