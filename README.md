@@ -1,7 +1,6 @@
-[![Build Status](https://travis-ci.org/kuszaj/nbpy.svg?branch=master)](https://travis-ci.org/kuszaj/nbpy)
-
 NPBy
 =========
+[![Build Status](https://travis-ci.org/kuszaj/nbpy.svg?branch=master)](https://travis-ci.org/kuszaj/nbpy)
 
 A utility package for calling [NBP (Polish National Bank) Web API](http://api.nbp.pl/en.html) and converting various currencies to Polish zloty using its exchange rates.
 
