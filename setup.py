@@ -1,3 +1,4 @@
+import sys
 from setuptools import setup
 from nbpy.version import (
     version,
@@ -7,6 +8,9 @@ from nbpy.version import (
     author_email,
     license,
 )
+
+if not sys.version_info >= (3, 3):
+    sys.exit("NBPy supports only Python 3.3 and above.")
 
 # Requirements
 with open('requirements.txt', 'r') as f:
@@ -26,4 +30,5 @@ setup(
     license=license,
     packages=['nbpy'],
     install_requires=requirements,
+    python_requires='>=3.3',
 )

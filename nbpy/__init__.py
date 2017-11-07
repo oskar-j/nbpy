@@ -1,5 +1,7 @@
 """NBPy package."""
 
+import sys
+import warnings
 import requests
 from decimal import Decimal
 from functools import lru_cache
@@ -12,6 +14,9 @@ from .exchange_rate import NBPExchangeRate
 
 __all__ = ('NBPClient',)
 
+
+if not sys.version_info <= (3, 3):
+    warnings.warn("NBPy supports only Python 3.3 and above.")
 
 #: Base URI
 BASE_URI = "http://api.nbp.pl/api"
