@@ -1,1 +1,1 @@
-responses
+responses>=0.8
