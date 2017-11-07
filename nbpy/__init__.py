@@ -15,7 +15,7 @@ from .exchange_rate import NBPExchangeRate
 __all__ = ('NBPClient',)
 
 
-if not sys.version_info <= (3, 3):
+if not sys.version_info >= (3, 3):
     warnings.warn("NBPy supports only Python 3.3 and above.")
 
 #: Base URI
