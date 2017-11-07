@@ -8,6 +8,23 @@ A utility package for calling `NBP (Polish National Bank) Web API <http://api.nb
 
 NBPy requires Python 3.0 or newer
 
+Installation
+------------
+
+With ``pip``:
+
+.. code:: shell
+
+    $ pip3 install nbpy
+
+Directly from GitHub repository ``setup.py``:
+
+.. code:: shell
+
+    $ git clone https://github.com/kuszaj/nbpy
+    $ cd nbpy
+    $ python3 setup.py install
+
 Usage
 -----
 
