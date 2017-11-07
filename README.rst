@@ -11,13 +11,13 @@ NBPy requires Python 3.3 or newer
 Installation
 ------------
 
-With ``pip``:
+From PyPI:
 
 .. code:: shell
 
     $ pip3 install nbpy
 
-Directly from GitHub repository ``setup.py``:
+From source code:
 
 .. code:: shell
 
