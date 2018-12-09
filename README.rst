@@ -1,8 +1,7 @@
 NPBy
 ====
 
-.. image:: https://travis-ci.org/kuszaj/nbpy.svg?branch=master
-    :target: https://travis-ci.org/kuszaj/nbpy
+This is a fork of the tool made by [kuszaj/nbpy](https://github.com/kuszaj/nbpy), I added a http(s) proxy connectivity.
 
 A utility package for calling `NBP (Polish National Bank) Web API <http://api.nbp.pl/en.html>`_ and converting various currencies to Polish zloty using its exchange rates.
 
@@ -11,19 +10,12 @@ NBPy requires Python 3.3 or newer
 Installation
 ------------
 
-From PyPI:
-
-.. code:: shell
-
-    $ pip3 install nbpy
-
 From source code:
 
 .. code:: shell
 
-    $ git clone https://github.com/kuszaj/nbpy
-    $ cd nbpy
-    $ python3 setup.py install
+    $ pip install git+https://github.com/oskar-j/nbpy
+
 
 Usage
 -----

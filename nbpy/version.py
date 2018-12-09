@@ -1,6 +1,6 @@
 """Metadata for NBPy package."""
 
-version = "0.1.1"
+version = "0.1.2"
 title = "NBPy"
 description = "A utility package for calling NBP (Polish National Bank) Web API."
 author = "Piotr Kuszaj"

@@ -60,6 +60,11 @@ class NBPClient(object):
         #: Max size for LRU cache.
         self._cache_size = kwargs.get('cache_size', 128)
 
+        # Proxy settings (for requests)
+        self._proxy_url = kwargs.get('proxy_url', None)  # should have url:port format
+        self._proxy_secure_url = kwargs.get('proxy_https_url', None)
+        self._proxy_secure = kwargs.get('proxy_is_https', False)
+
         cache_decorator = lru_cache(maxsize=self.cache_size)
         self._get_response_data = cache_decorator(self._get_response_data)
 
@@ -116,10 +121,20 @@ class NBPClient(object):
             tail=uri_tail.lower()
         )
 
+        if self._proxy_url is not None:
+            proxy_dict = {'http': self._proxy_url, }
+            if self._proxy_secure:
+                if self._proxy_secure_url is not None:
+                    proxy_dict['https'] = self._proxy_secure_url
+                else:
+                    proxy_dict['https'] = proxy_dict['http'].replace('http', 'https')
+        else:
+            proxy_dict = None
+
         # Send request to API, raise exception on error
         try:
             headers = {'Accept': 'application/json'}
-            r = requests.get(uri, headers=headers)
+            r = requests.get(uri, headers=headers, proxies=proxy_dict)
             r.raise_for_status()
         except Exception as e:
             if self.suppress_errors:

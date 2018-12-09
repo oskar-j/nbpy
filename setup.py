@@ -28,7 +28,7 @@ setup(
     author=author,
     author_email=author_email,
     license=license,
-    packages=['nbpy'],
+    packages=['nbpy', ],
     install_requires=requirements,
     python_requires='>=3.3',
     classifiers=[
