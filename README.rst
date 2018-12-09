@@ -1,7 +1,7 @@
 NPBy
 ====
 
-This is a fork of the tool made by [kuszaj/nbpy](https://github.com/kuszaj/nbpy), I added a http(s) proxy connectivity.
+This is a fork of the tool made by kuszaj (https://github.com/kuszaj/nbpy), I added a http(s) proxy connectivity.
 
 A utility package for calling `NBP (Polish National Bank) Web API <http://api.nbp.pl/en.html>`_ and converting various currencies to Polish zloty using its exchange rates.
 
@@ -185,6 +185,15 @@ For efficiency, ``NBPClient`` utilizes LRU cache for by saving last 128 calls. Y
     ...     print("Can't overwrite cache_size")
     ...
     Can't overwrite cache_size
+
+Setting a proxy
+~~~~~~~~~~~~~~~~~~
+
+``NBPClient`` allows to set a http proxy
+
+.. code:: python
+
+    >>> nbp = NBPClient('eur', proxy_url='http://ip:port')
 
 Rates as floats
 ~~~~~~~~~~~~~~~
