@@ -10,11 +10,11 @@ NBPy requires Python 3.3 or newer
 Installation
 ------------
 
-From source code:
+From the forked source code:
 
 .. code:: shell
 
-    $ pip install git+https://github.com/oskar-j/nbpy
+    $ pip install git+https://github.com/oskar-j/nbpy.git
 
 
 Usage
